@@ -1,116 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
   <meta charset="UTF-8">
-  <title>Member ID</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cuyapo Member Portal</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 20px;
-    }
-    .card {
-      max-width: 420px;
-      margin: auto;
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .avatar {
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      background: #e0e0e0;
-      margin: auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 36px;
-      font-weight: bold;
-    }
-    h2 {
-      margin: 15px 0 5px;
-    }
-    .role {
-      color: #666;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-    .info {
-      text-align: left;
-      margin-top: 15px;
-      font-size: 14px;
-    }
-    .info p {
-      margin: 6px 0;
-    }
-    .club {
-      margin-top: 20px;
-      font-size: 13px;
-      color: #999;
-    }
-    #qrcode {
-      margin-top: 15px;
-    }
+    body { font-family: Arial; text-align: center; margin-top: 60px; }
+    input, button { padding: 10px; margin: 5px; width: 250px; }
+    #uid { font-weight: bold; word-break: break-all; }
   </style>
 </head>
 <body>
 
-<div class="card" id="card">
-  <div class="avatar" id="avatar">?</div>
-  <h2 id="name">Member Name</h2>
-  <div class="role" id="role">Role</div>
+  <h2>Cuyapo Member Portal</h2>
 
-  <div id="qrcode"></div>
-
-  <div class="info">
-    <p><strong>ID:</strong> <span id="id"></span></p>
-    <p><strong>Contact:</strong> <span id="contact"></span></p>
+  <div id="auth">
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <br>
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+    <p id="msg"></p>
   </div>
 
-  <div class="club">
-    Cuyapo Volleyball Club
+  <div id="dashboard" style="display:none;">
+    <h3>Welcome Member</h3>
+    <p>Your Member ID (QR-ready):</p>
+    <div id="uid"></div>
+    <br>
+    <button onclick="logout()">Logout</button>
   </div>
-</div>
 
-<script>
-const members = {
-  "003": {
-    name: "Jomari C. Cuevas",
-    role: "Coach",
-    contact: "090909090909",
-    address: "Brgy. Baloy, Cuyapo, Nueva Ecija"
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+ apiKey: "AIzaSyXXXX",
+appId: "1:618744547531:web:XXXXXXXX"
+  authDomain: "cuyapo-member-portal.firebaseapp.com",
+  projectId: "cuyapo-member-portal",
+  storageBucket: "cuyapo-member-portal.appspot.com",
+  messagingSenderId: "618744547531",
+  appId: "PASTE_APP_ID_HERE"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const msg = document.getElementById("msg");
+const authDiv = document.getElementById("auth");
+const dash = document.getElementById("dashboard");
+const uidDiv = document.getElementById("uid");
+
+window.register = async () => {
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email.value, password.value);
+    await setDoc(doc(db, "members", cred.user.uid), {
+      email: email.value,
+      createdAt: new Date()
+    });
+    msg.textContent = "Registered successfully";
+  } catch (e) {
+    msg.textContent = e.message;
   }
 };
 
-const params = new URLSearchParams(window.location.search);
-const id = params.get("id");
+window.login = async () => {
+  try {
+    await signInWithEmailAndPassword(auth, email.value, password.value);
+  } catch (e) {
+    msg.textContent = e.message;
+  }
+};
 
-if (members[id]) {
-  document.getElementById("name").textContent = members[id].name;
-  document.getElementById("role").textContent = members[id].role;
-  document.getElementById("contact").textContent = members[id].contact;
-  document.getElementById("id").textContent = id;
-  document.getElementById("avatar").textContent = members[id].name[0];
+window.logout = () => signOut(auth);
 
-  const qrContainer = document.getElementById("qrcode");
-  qrContainer.innerHTML = "";
-
-  new QRCode(qrContainer, {
-    text: window.location.href,
-    width: 128,
-    height: 128
-  });
-
-} else {
-  document.getElementById("card").innerHTML =
-    "<h2>Member not found</h2><p>Invalid QR Code</p>";
-}
+onAuthStateChanged(auth, user => {
+  if (user) {
+    authDiv.style.display = "none";
+    dash.style.display = "block";
+    uidDiv.textContent = user.uid;
+  } else {
+    authDiv.style.display = "block";
+    dash.style.display = "none";
+  }
+});
 </script>
 
 </body>
