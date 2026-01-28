@@ -1,34 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Cuyapo Member Portal</title>
-  <style>
-    body { font-family: Arial; text-align: center; margin-top: 60px; }
-    input, button { padding: 10px; margin: 5px; width: 250px; }
-    #uid { font-weight: bold; word-break: break-all; }
-  </style>
+<meta charset="UTF-8">
+<title>Cuyapo Member Portal</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f7d4c, #1fa66a);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  background: #fff;
+  width: 380px;
+  padding: 35px;
+  border-radius: 10px;
+  box-shadow: 0 15px 40px rgba(0,0,0,.25);
+  text-align: center;
+}
+
+.logos {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.logos img {
+  height: 55px;
+}
+
+h2 {
+  color: #0f7d4c;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+input:focus {
+  outline: none;
+  border-color: #1fa66a;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 5px;
+  background: #0f7d4c;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #1fa66a;
+}
+
+button:hover {
+  opacity: .9;
+}
+
+#msg {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #cc0000;
+}
+
+#dashboard h3 {
+  color: #0f7d4c;
+}
+
+#uid {
+  font-weight: bold;
+  word-break: break-all;
+  background: #f4f4f4;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+</style>
 </head>
+
 <body>
 
-  <h2>Cuyapo Member Portal</h2>
+<div class="card">
 
+  <div class="logos">
+    <img src="ucu-logo.png" alt="UCU Logo">
+    <img src="cvc-logo.png" alt="CVC Logo">
+  </div>
+
+  <h2>Cuyapo Member Portal</h2>
+  <div class="subtitle">
+    CVC — Cuyapo Volleyball Club<br>
+    Inspired by Urdaneta City University
+  </div>
+
+  <!-- AUTH -->
   <div id="auth">
-    <input id="email" placeholder="Email">
+    <input id="email" placeholder="Email address">
     <input id="password" type="password" placeholder="Password">
-    <br>
-    <button onclick="register()">Register</button>
+
     <button onclick="login()">Login</button>
+    <button class="secondary" onclick="register()">Register</button>
+
     <p id="msg"></p>
   </div>
 
+  <!-- DASHBOARD -->
   <div id="dashboard" style="display:none;">
-    <h3>Welcome Member</h3>
-    <p>Your Member ID (QR-ready):</p>
+    <h3>Welcome, Member!</h3>
+    <p>Your Member ID (QR-ready)</p>
     <div id="uid"></div>
-    <br>
     <button onclick="logout()">Logout</button>
   </div>
+
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -62,8 +173,10 @@ window.register = async () => {
       email: email.value,
       createdAt: new Date()
     });
-    msg.textContent = "Registered successfully";
+    msg.style.color = "green";
+    msg.textContent = "Registered successfully. You may now login.";
   } catch (e) {
+    msg.style.color = "red";
     msg.textContent = e.message;
   }
 };
@@ -72,6 +185,7 @@ window.login = async () => {
   try {
     await signInWithEmailAndPassword(auth, email.value, password.value);
   } catch (e) {
+    msg.style.color = "red";
     msg.textContent = e.message;
   }
 };
