@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
   <meta charset="UTF-8">
   <title>Member ID</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,6 +54,9 @@
       font-size: 13px;
       color: #999;
     }
+    #qrcode {
+      margin-top: 15px;
+    }
   </style>
 </head>
 <body>
@@ -61,6 +65,8 @@
   <div class="avatar" id="avatar">?</div>
   <h2 id="name">Member Name</h2>
   <div class="role" id="role">Role</div>
+
+  <div id="qrcode"></div>
 
   <div class="info">
     <p><strong>ID:</strong> <span id="id"></span></p>
@@ -73,32 +79,38 @@
 </div>
 
 <script>
-  const members = {
-    "001": {
-      name: "Juan Dela Cruz",
-      role: "Player",
-      contact: "09123456789"
-    },
-    "002": {
-      name: "Maria Santos",
-      role: "Team Manager",
-      contact: "09987654321"
-    }
-  };
-
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
-
-  if (members[id]) {
-    document.getElementById("name").textContent = members[id].name;
-    document.getElementById("role").textContent = members[id].role;
-    document.getElementById("contact").textContent = members[id].contact;
-    document.getElementById("id").textContent = id;
-    document.getElementById("avatar").textContent = members[id].name[0];
-  } else {
-    document.getElementById("card").innerHTML =
-      "<h2>Member not found</h2><p>Invalid QR Code</p>";
+const members = {
+  "003": {
+    name: "Jomari C. Cuevas",
+    role: "Coach",
+    contact: "090909090909",
+    address: "Brgy. Baloy, Cuyapo, Nueva Ecija"
   }
+};
+
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+if (members[id]) {
+  document.getElementById("name").textContent = members[id].name;
+  document.getElementById("role").textContent = members[id].role;
+  document.getElementById("contact").textContent = members[id].contact;
+  document.getElementById("id").textContent = id;
+  document.getElementById("avatar").textContent = members[id].name[0];
+
+  const qrContainer = document.getElementById("qrcode");
+  qrContainer.innerHTML = "";
+
+  new QRCode(qrContainer, {
+    text: window.location.href,
+    width: 128,
+    height: 128
+  });
+
+} else {
+  document.getElementById("card").innerHTML =
+    "<h2>Member not found</h2><p>Invalid QR Code</p>";
+}
 </script>
 
 </body>
